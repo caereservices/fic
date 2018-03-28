@@ -1,0 +1,22 @@
+{
+    "name": "caereservices/fic",
+    "description": "FattureInCloud Interface Package",
+    "keywords": ["template", "composer", "package"],
+    "homepage": "https://github.com/caereservices/fic",
+    "license": "Apache 2.0",
+    "authors": [
+        {
+            "name": "Massimo Villalta",
+            "email": "m.villalta@caereservices.it"
+        }
+    ],
+    "type": "project",
+    "require": {
+		"php": ">=5.4"
+    },
+	"autoload": {
+        "psr-4": {
+            "Caereservices\\Fic\\": "src/"
+        }
+    }
+}
