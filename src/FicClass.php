@@ -62,9 +62,13 @@ class FicClass {
       }
    }
 
-   function __construct($apiUid = "", $apiKey = "", $baseUrl = "")
+   function __construct()
    {
       $this->haveCredentials = false;
+   }
+
+   function setCredentials($apiUid = "", $apiKey = "", $baseUrl = "")
+   {
       if( ($apiUid != "") && ($apiKey != "") && ($baseUrl != "") ) {
          $this->api_uid = $apiUid;
          $this->api_key = $apiKey;
