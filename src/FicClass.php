@@ -2,7 +2,6 @@
 
 namespace Caereservices\Fic;
 
-//use Illuminate\Support\Facades\Log;
 use Caereservices\Fic\FicStatus as FicStatus;
 
 class FicClass {
@@ -54,7 +53,6 @@ class FicClass {
          if( isset($result["success"]) && $result["success"] ) {
             return $result;
          } else if( isset($result["error_code"]) ) {
-            //Log::info($result);
             return intval($result["error_code"]);
          } else {
             return false;
