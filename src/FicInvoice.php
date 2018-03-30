@@ -2,7 +2,6 @@
 
 namespace Caereservices\Fic;
 
-//use Illuminate\Support\Facades\Log;
 use Caereservices\Fic\FicStatus as FicStatus;
 
 class FicInvoice extends FicClass {
@@ -208,7 +207,6 @@ class FicInvoice extends FicClass {
                "invia_copia" => false,
                "allega_pdf" => true
             ];
-            //Log::info($data);
             $url = $this->api_url . '/fatture/inviamail';
             $result = $this->processResult($this->makeRequest($url, $data));
             if( $result === false ) {
