@@ -2,11 +2,12 @@
 
 namespace Caereservices\Fic;
 
+//use Illuminate\Support\Facades\Log;
 use Caereservices\Fic\FicStatus as FicStatus;
 
 class FicInvoice extends FicClass {
 
-   protected $isEmpty;
+   protected $empty;
 
    protected $id;
    protected $id_cliente;
@@ -15,6 +16,7 @@ class FicInvoice extends FicClass {
    protected $subs_desc;
    protected $subs_price;
    protected $subs_price_tax;
+   protected $subs_expire;
    protected $payment_amount;
    protected $invoice_token;
    protected $mail_mittente;
@@ -26,6 +28,7 @@ class FicInvoice extends FicClass {
    {
       if( !$this->empty && ($this->id_cliente != "") ) {
          $data = [
+            "nome" => "HOMELIKE",
             "id_cliente" => $this->id_cliente,
             "id_fornitore" => "0",
             "autocompila_anagrafica" => true,
@@ -36,11 +39,12 @@ class FicInvoice extends FicClass {
             "nascondi_scadenza" => true,
             "ddt" => false,
             "ftacc" => false,
-            "id_template" => 0, // Create template on platform
+            "id_template" => 106,
+            "oggetto_interno" => $this->subs_desc,
             "mostra_info_pagamento" => true,
             "metodo_pagamento" => "PayPal",
-            "metodo_titoloN" => "TXNID",
-            "metodo_descN" => $this->txn_id,
+            "metodo_titolo1" => "TXNID",
+            "metodo_desc1" => $this->txn_id,
             "mostra_totali" => "tutti",
             "mostra_bottone_paypal" => false,
             "mostra_bottone_bonifico" => false,
@@ -49,10 +53,11 @@ class FicInvoice extends FicClass {
                [
                   "id" => "0",
                   "codice" => $this->subs_code,
-                  "nome" => "",
+                  "nome" => $this->subs_desc,
                   "um" => "",
+                  "cod_iva" => "0",
                   "quantita" => 1,
-                  "descrizione" => $this->subs_desc,
+                  "descrizione" => "Periodo pagato dal " . date("d/m/Y") . " al " . $this->subs_expire,
                   "prezzo_netto" => $this->subs_price,
                   "prezzo_lordo" => $this->subs_price_tax,
                   "tassabile" => true,
@@ -63,8 +68,8 @@ class FicInvoice extends FicClass {
             "lista_pagamenti" => [
                [
                   "data_scadenza" => date("d/m/Y"),
-                  "importo" => $this->payment_amount,
-                  "metodo" => "not",
+                  "importo" => "auto",
+                  "metodo" => "PayPal",
                   "data_saldo" => date("d/m/Y")
                ]
             ],
@@ -85,7 +90,7 @@ class FicInvoice extends FicClass {
             $this->status = $result;
             return false;
          }
-         if( isset($result["success"]) && $result["success"] ) {
+         if( $result["success"] ) {
             $this->id = $result["new_id"];
             $this->invoice_token = $result["token"];
          }
@@ -111,6 +116,7 @@ class FicInvoice extends FicClass {
       $this->subs_desc = "";
       $this->subs_price = "";
       $this->subs_price_tax = "";
+      $this->subs_expire = "";
       $this->payment_amount = "";
       $this->invoice_token = "";
       $this->mail_mittente = "";
@@ -142,15 +148,26 @@ class FicInvoice extends FicClass {
       }
    }
 
+   function getId()
+   {
+      return $this->id;
+   }
+
+   function getToken()
+   {
+      return $this->invoice_token;
+   }
+
    function create()
    {
       return $this->save("");
    }
 
-   function delete($token = "")
+   function delete($id = "", $token = "")
    {
-      if( $token != "" ) {
+      if( ($token != "") && ($id != "") ) {
          $data = [
+            "id" => $id,
             "token" => $token
          ];
          $url = $this->api_url . '/fatture/elimina';
@@ -178,18 +195,20 @@ class FicInvoice extends FicClass {
       if( !$this->empty && ($this->invoice_token != "") ) {
          if( ($this->mail_mittente != "") && ($this->mail_destinatario != "") ) {
             $data = [
+               "id" => $this->id,
                "token" => $this->invoice_token,
                "mail_mittente" => $this->mail_mittente,
                "mail_destinatario" => $this->mail_destinatario,
                "oggetto" => $this->mail_oggetto,
                "messaggio" => $this->mail_messaggio,
-               "includi_documento" => false,
+               "includi_documento" => true,
                "invia_ddt" => false,
                "invia_fa" => false,
-               "includi_allegato" => false,
-               "invia_copia" => true,
+               "includi_allegato" => true,
+               "invia_copia" => false,
                "allega_pdf" => true
             ];
+            //Log::info($data);
             $url = $this->api_url . '/fatture/inviamail';
             $result = $this->processResult($this->makeRequest($url, $data));
             if( $result === false ) {

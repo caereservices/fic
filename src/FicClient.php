@@ -6,7 +6,7 @@ use Caereservices\Fic\FicStatus as FicStatus;
 
 class FicClient extends FicClass {
 
-   protected $isEmpty;
+   protected $empty;
 
    protected $id;
    protected $nome;
